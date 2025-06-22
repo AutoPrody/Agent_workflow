@@ -17,41 +17,8 @@ CORS(app, resources={
     }
 })
 
-# API Key configuration
-API_KEY = os.environ.get('API_KEY', 'your-secret-api-key-here')  # Set this in environment variables
 
-def require_api_key(f):
-    """Decorator to require API key for protected routes"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        api_key = request.headers.get('X-API-Key') or request.headers.get('Authorization')
-        
-        if not api_key:
-            return jsonify({
-                "responseType": "error",
-                "error": {
-                    "code": "MISSING_API_KEY",
-                    "message": "API key is required",
-                    "details": "Please provide API key in 'X-API-Key' or 'Authorization' header"
-                }
-            }), 401
-        
-        # Remove 'Bearer ' prefix if present
-        if api_key.startswith('Bearer '):
-            api_key = api_key[7:]
-        
-        if api_key != API_KEY:
-            return jsonify({
-                "responseType": "error",
-                "error": {
-                    "code": "INVALID_API_KEY",
-                    "message": "Invalid API key",
-                    "details": "The provided API key is not valid"
-                }
-            }), 403
-        
-        return f(*args, **kwargs)
-    return decorated_function
+
 
 # Mock data for the restaurant
 STORE_DATA = {
@@ -240,7 +207,6 @@ def swiggy_dashboard():
 
 # API Routes following the original agent specification
 @app.route('/tools', methods=['GET'])
-@require_api_key
 def get_tools():
     """Get available tools - following original agent spec"""
     with open('tools.json', 'r') as f:
@@ -249,7 +215,6 @@ def get_tools():
     return tools
 
 @app.route('/tools/<tool_name>', methods=['POST'])
-@require_api_key
 def execute_tool(tool_name):
     """Execute a specific tool - following original agent spec"""
     try:
