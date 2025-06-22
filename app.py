@@ -208,12 +208,7 @@ def get_tools():
     with open('tools.json', 'r') as f:
         tools = json.load(f)
     
-    return jsonify({
-        "responseType": "success",
-        "data": {
-            "tools": tools
-        }
-    })
+    return tools
 
 @app.route('/tools/<tool_name>', methods=['POST'])
 def execute_tool(tool_name):
