@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zomato Merchant Dashboard - {{ store.name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .header {
+            background: #cb202d;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .nav-tabs {
+            background: white;
+            padding: 0 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-tab {
+            padding: 1rem 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab.active {
+            color: #cb202d;
+            border-bottom-color: #cb202d;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .store-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .store-header {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .store-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        
+        .store-info h2 {
+            color: #cb202d;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .store-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .detail-item {
+            padding: 0.5rem 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .detail-value {
+            margin-top: 0.2rem;
+            font-size: 1rem;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .menu-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .menu-item.unavailable {
+            opacity: 0.6;
+            background: #f8f9fa;
+        }
+        
+        .menu-item-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .menu-item-content {
+            padding: 1.5rem;
+        }
+        
+        .menu-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-item h3 {
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-item .category {
+            background: #cb202d;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .menu-item .description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .menu-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #cb202d;
+        }
+        
+        .availability-toggle {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+        
+        .availability-toggle.unavailable {
+            background: #dc3545;
+        }
+        
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .offer-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #cb202d;
+        }
+        
+        .offer-code {
+            background: #cb202d;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .offer-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        
+        .offer-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .offer-value {
+            font-weight: 600;
+            color: #cb202d;
+        }
+        
+        .status-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-open {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .star {
+            color: #ffc107;
+            font-size: 1.2rem;
+        }
+        
+        .price-update-form {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background: #cb202d;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #a01828;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍕 Zomato Merchant Dashboard</h1>
+        <div class="subtitle">Manage your restaurant on Zomato platform</div>
+    </div>
+    
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="showTab('store')">Store Info</div>
+        <div class="nav-tab" onclick="showTab('menu')">Menu Management</div>
+        <div class="nav-tab" onclick="showTab('offers')">Offers & Coupons</div>
+    </div>
+    
+    <div class="container">
+        <!-- Store Info Tab -->
+        <div id="store-tab" class="tab-content active">
+            <div class="store-card">
+                <div class="store-header">
+                    <img src="{{ store.image }}" alt="{{ store.name }}" class="store-image">
+                    <div class="store-info">
+                        <h2>{{ store.name }}</h2>
+                        <p>{{ store.description }}</p>
+                        <div class="rating">
+                            <span class="star">★</span>
+                            <span>{{ store.rating }}</span>
+                        </div>
+                        <span class="status-badge status-open">{{ store.status|title }}</span>
+                    </div>
+                </div>
+                
+                <div class="store-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Address</div>
+                        <div class="detail-value">{{ store.address }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Phone</div>
+                        <div class="detail-value">{{ store.phone }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">{{ store.email }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Delivery Time</div>
+                        <div class="detail-value">{{ store.delivery_time }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Cuisine</div>
+                        <div class="detail-value">{{ store.cuisine|join(', ') }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Platform Commission</div>
+                        <div class="detail-value">20% (Zomato)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu Management Tab -->
+        <div id="menu-tab" class="tab-content">
+            <div id="menu-alerts"></div>
+            <div class="menu-grid">
+                {% for item_id, item in menu_items.items() %}
+                <div class="menu-item {% if not item.available %}unavailable{% endif %}" id="item-{{ item_id }}">
+                    <img src="{{ item.image }}" alt="{{ item.name }}" class="menu-item-image">
+                    <div class="menu-item-content">
+                        <div class="menu-item-header">
+                            <h3>{{ item.name }}</h3>
+                            <span class="category">{{ item.category }}</span>
+                        </div>
+                        <p class="description">{{ item.description }}</p>
+                        <div class="menu-item-footer">
+                            <span class="price">₹<span id="price-{{ item_id }}">{{ item.prices.zomato }}</span></span>
+                            <button class="availability-toggle {% if not item.available %}unavailable{% endif %}" 
+                                    onclick="toggleAvailability('{{ item_id }}')" 
+                                    id="toggle-{{ item_id }}">
+                                {% if item.available %}Available{% else %}Unavailable{% endif %}
+                            </button>
+                        </div>
+                        
+                        <div class="price-update-form">
+                            <div class="form-group">
+                                <label for="new-price-{{ item_id }}">Update Price (₹)</label>
+                                <input type="number" id="new-price-{{ item_id }}" min="1" step="1" 
+                                       value="{{ item.prices.zomato }}" placeholder="Enter new price">
+                            </div>
+                            <button class="btn" onclick="updatePrice('{{ item_id }}')">Update Price</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Offers Tab -->
+        <div id="offers-tab" class="tab-content">
+            <div id="offers-alerts"></div>
+            <h2 style="margin-bottom: 1.5rem; color: #cb202d;">Active Offers</h2>
+            <div class="offers-grid" id="offers-container">
+                {% for offer in offers %}
+                <div class="offer-card">
+                    <div class="offer-code">{{ offer.title }}</div>
+                    <div class="offer-description">{{ offer.description }}</div>
+                    <div class="offer-details">
+                        <span class="offer-value">
+                            {% if offer.discount_type == 'percentage' %}
+                                {{ offer.discount_value }}% OFF
+                            {% else %}
+                                ₹{{ offer.discount_value }} OFF
+                            {% endif %}
+                        </span>
+                        <span>Min: ₹{{ offer.min_order }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="store-card" style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #cb202d;">Create New Offer</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label for="offer-title">Offer Code</label>
+                        <input type="text" id="offer-title" placeholder="e.g., SAVE30">
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-description">Description</label>
+                        <input type="text" id="offer-description" placeholder="e.g., 30% off on orders above ₹500">
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-type">Discount Type</label>
+                        <select id="offer-type" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px;">
+                            <option value="percentage">Percentage</option>
+                            <option value="fixed">Fixed Amount</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-value">Discount Value</label>
+                        <input type="number" id="offer-value" min="1" placeholder="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-min-order">Minimum Order (₹)</label>
+                        <input type="number" id="offer-min-order" min="0" placeholder="500">
+                    </div>
+                    <div class="form-group">
+                        <label for="offer-max-discount">Max Discount (₹)</label>
+                        <input type="number" id="offer-max-discount" min="1" placeholder="150">
+                    </div>
+                </div>
+                <button class="btn" onclick="createOffer()" style="margin-top: 1rem;">Create Offer</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to selected nav tab
+            event.target.classList.add('active');
+        }
+        
+        function showAlert(containerId, message, type = 'success') {
+            const container = document.getElementById(containerId);
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+        
+        async function updatePrice(itemId) {
+            const newPrice = document.getElementById(`new-price-${itemId}`).value;
+            
+            if (!newPrice || newPrice <= 0) {
+                showAlert('menu-alerts', 'Please enter a valid price', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/tools/updateMenuPrice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        item_id: itemId,
+                        platform: 'zomato',
+                        new_price: parseInt(newPrice)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.responseType === 'success') {
+                    document.getElementById(`price-${itemId}`).textContent = newPrice;
+                    showAlert('menu-alerts', result.data.message, 'success');
+                } else {
+                    showAlert('menu-alerts', result.error.message, 'error');
+                }
+            } catch (error) {
+                showAlert('menu-alerts', 'Error updating price: ' + error.message, 'error');
+            }
+        }
+        
+        async function toggleAvailability(itemId) {
+            try {
+                const response = await fetch('/tools/toggleItemAvailability', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        item_id: itemId
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.responseType === 'success') {
+                    const item = document.getElementById(`item-${itemId}`);
+                    const button = document.getElementById(`toggle-${itemId}`);
+                    
+                    if (result.data.available) {
+                        item.classList.remove('unavailable');
+                        button.classList.remove('unavailable');
+                        button.textContent = 'Available';
+                    } else {
+                        item.classList.add('unavailable');
+                        button.classList.add('unavailable');
+                        button.textContent = 'Unavailable';
+                    }
+                    
+                    showAlert('menu-alerts', result.data.message, 'success');
+                } else {
+                    showAlert('menu-alerts', result.error.message, 'error');
+                }
+            } catch (error) {
+                showAlert('menu-alerts', 'Error toggling availability: ' + error.message, 'error');
+            }
+        }
+        
+        async function createOffer() {
+            const title = document.getElementById('offer-title').value;
+            const description = document.getElementById('offer-description').value;
+            const discountType = document.getElementById('offer-type').value;
+            const discountValue = document.getElementById('offer-value').value;
+            const minOrder = document.getElementById('offer-min-order').value;
+            const maxDiscount = document.getElementById('offer-max-discount').value;
+            
+            if (!title || !description || !discountValue || !minOrder) {
+                showAlert('offers-alerts', 'Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/tools/createOffer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        platform: 'zomato',
+                        title: title,
+                        description: description,
+                        discount_type: discountType,
+                        discount_value: parseInt(discountValue),
+                        min_order: parseInt(minOrder),
+                        max_discount: maxDiscount ? parseInt(maxDiscount) : (discountType === 'fixed' ? parseInt(discountValue) : 200)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.responseType === 'success') {
+                    // Add new offer to UI
+                    const offersContainer = document.getElementById('offers-container');
+                    const newOfferCard = document.createElement('div');
+                    newOfferCard.className = 'offer-card';
+                    newOfferCard.innerHTML = `
+                        <div class="offer-code">${title}</div>
+                        <div class="offer-description">${description}</div>
+                        <div class="offer-details">
+                            <span class="offer-value">
+                                ${discountType === 'percentage' ? discountValue + '% OFF' : '₹' + discountValue + ' OFF'}
+                            </span>
+                            <span>Min: ₹${minOrder}</span>
+                        </div>
+                    `;
+                    offersContainer.appendChild(newOfferCard);
+                    
+                    // Clear form
+                    document.getElementById('offer-title').value = '';
+                    document.getElementById('offer-description').value = '';
+                    document.getElementById('offer-value').value = '';
+                    document.getElementById('offer-min-order').value = '';
+                    document.getElementById('offer-max-discount').value = '';
+                    
+                    showAlert('offers-alerts', result.data.message, 'success');
+                } else {
+                    showAlert('offers-alerts', result.error.message, 'error');
+                }
+            } catch (error) {
+                showAlert('offers-alerts', 'Error creating offer: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
