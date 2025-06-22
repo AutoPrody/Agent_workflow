@@ -271,19 +271,19 @@ def execute_tool(tool_name):
             return update_store_info(data)
         else:
             return jsonify({
-                "responseType": "error",
-                "error": {
-                    "code": "TOOL_NOT_FOUND",
+                "success": False,
+                "data": {
+                    "error": "TOOL_NOT_FOUND",
                     "message": f"Tool '{tool_name}' not found",
-                    "details": f"Available tools: updateMenuPrice, createOffer, toggleItemAvailability, getStoreInfo, getMenuItems, getActiveOffers, updateStoreInfo"
+                    "available_tools": ["updateMenuPrice", "createOffer", "toggleItemAvailability", "getStoreInfo", "getMenuItems", "getActiveOffers", "updateStoreInfo"]
                 }
             }), 404
             
     except Exception as e:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "INTERNAL_ERROR",
+            "success": False,
+            "data": {
+                "error": "INTERNAL_ERROR",
                 "message": "An internal error occurred",
                 "details": str(e)
             }
@@ -297,11 +297,11 @@ def update_menu_price(data):
     
     if missing_fields:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "MISSING_PARAMETERS",
+            "success": False,
+            "data": {
+                "error": "MISSING_PARAMETERS",
                 "message": f"Missing required parameters: {', '.join(missing_fields)}",
-                "details": "Required: item_id, platform, new_price"
+                "required_fields": required_fields
             }
         }), 400
     
@@ -311,21 +311,21 @@ def update_menu_price(data):
     
     if item_id not in MENU_ITEMS:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "ITEM_NOT_FOUND",
+            "success": False,
+            "data": {
+                "error": "ITEM_NOT_FOUND",
                 "message": f"Menu item '{item_id}' not found",
-                "details": f"Available items: {', '.join(MENU_ITEMS.keys())}"
+                "available_items": list(MENU_ITEMS.keys())
             }
         }), 404
     
     if platform not in ['zomato', 'swiggy']:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "INVALID_PLATFORM",
+            "success": False,
+            "data": {
+                "error": "INVALID_PLATFORM",
                 "message": "Platform must be 'zomato' or 'swiggy'",
-                "details": "Supported platforms: zomato, swiggy"
+                "supported_platforms": ["zomato", "swiggy"]
             }
         }), 400
     
@@ -333,7 +333,7 @@ def update_menu_price(data):
     MENU_ITEMS[item_id]['prices'][platform] = new_price
     
     return jsonify({
-        "responseType": "success",
+        "success": True,
         "data": {
             "item_id": item_id,
             "item_name": MENU_ITEMS[item_id]['name'],
@@ -351,22 +351,22 @@ def create_offer(data):
     
     if missing_fields:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "MISSING_PARAMETERS",
+            "success": False,
+            "data": {
+                "error": "MISSING_PARAMETERS",
                 "message": f"Missing required parameters: {', '.join(missing_fields)}",
-                "details": "Required: platform, title, description, discount_type, discount_value, min_order"
+                "required_fields": required_fields
             }
         }), 400
     
     platform = data['platform']
     if platform not in ['zomato', 'swiggy']:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "INVALID_PLATFORM",
+            "success": False,
+            "data": {
+                "error": "INVALID_PLATFORM",
                 "message": "Platform must be 'zomato' or 'swiggy'",
-                "details": "Supported platforms: zomato, swiggy"
+                "supported_platforms": ["zomato", "swiggy"]
             }
         }), 400
     
@@ -385,7 +385,7 @@ def create_offer(data):
     OFFERS[platform].append(new_offer)
     
     return jsonify({
-        "responseType": "success",
+        "success": True,
         "data": {
             "offer": new_offer,
             "platform": platform,
@@ -397,22 +397,22 @@ def toggle_item_availability(data):
     """Toggle menu item availability"""
     if 'item_id' not in data:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "MISSING_PARAMETERS",
+            "success": False,
+            "data": {
+                "error": "MISSING_PARAMETERS",
                 "message": "Missing required parameter: item_id",
-                "details": "Required: item_id"
+                "required_fields": ["item_id"]
             }
         }), 400
     
     item_id = data['item_id']
     if item_id not in MENU_ITEMS:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "ITEM_NOT_FOUND",
+            "success": False,
+            "data": {
+                "error": "ITEM_NOT_FOUND",
                 "message": f"Menu item '{item_id}' not found",
-                "details": f"Available items: {', '.join(MENU_ITEMS.keys())}"
+                "available_items": list(MENU_ITEMS.keys())
             }
         }), 404
     
@@ -420,7 +420,7 @@ def toggle_item_availability(data):
     status = "available" if MENU_ITEMS[item_id]['available'] else "unavailable"
     
     return jsonify({
-        "responseType": "success",
+        "success": True,
         "data": {
             "item_id": item_id,
             "item_name": MENU_ITEMS[item_id]['name'],
@@ -435,7 +435,7 @@ def get_store_info(data):
     
     if platform == 'all':
         return jsonify({
-            "responseType": "success",
+            "success": True,
             "data": {
                 "store": STORE_DATA,
                 "platforms": {
@@ -446,7 +446,7 @@ def get_store_info(data):
         })
     elif platform in ['zomato', 'swiggy']:
         return jsonify({
-            "responseType": "success",
+            "success": True,
             "data": {
                 "store": STORE_DATA,
                 "platform": platform,
@@ -458,11 +458,11 @@ def get_store_info(data):
         })
     else:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "INVALID_PLATFORM",
+            "success": False,
+            "data": {
+                "error": "INVALID_PLATFORM",
                 "message": "Platform must be 'zomato', 'swiggy', or 'all'",
-                "details": "Supported platforms: zomato, swiggy, all"
+                "supported_platforms": ["zomato", "swiggy", "all"]
             }
         }), 400
 
@@ -491,7 +491,7 @@ def get_menu_items(data):
         filtered_items[item_id] = item_data
     
     return jsonify({
-        "responseType": "success",
+        "success": True,
         "data": {
             "items": filtered_items,
             "total_count": len(filtered_items),
@@ -509,7 +509,7 @@ def get_active_offers(data):
     
     if platform == 'all':
         return jsonify({
-            "responseType": "success",
+            "success": True,
             "data": {
                 "offers": OFFERS,
                 "total_count": sum(len(offers) for offers in OFFERS.values())
@@ -518,7 +518,7 @@ def get_active_offers(data):
     elif platform in ['zomato', 'swiggy']:
         active_offers = [offer for offer in OFFERS[platform] if offer['active']]
         return jsonify({
-            "responseType": "success",
+            "success": True,
             "data": {
                 "offers": {platform: active_offers},
                 "total_count": len(active_offers),
@@ -527,11 +527,11 @@ def get_active_offers(data):
         })
     else:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "INVALID_PLATFORM",
+            "success": False,
+            "data": {
+                "error": "INVALID_PLATFORM",
                 "message": "Platform must be 'zomato', 'swiggy', or 'all'",
-                "details": "Supported platforms: zomato, swiggy, all"
+                "supported_platforms": ["zomato", "swiggy", "all"]
             }
         }), 400
 
@@ -547,16 +547,16 @@ def update_store_info(data):
     
     if not updated_fields:
         return jsonify({
-            "responseType": "error",
-            "error": {
-                "code": "NO_UPDATES",
+            "success": False,
+            "data": {
+                "error": "NO_UPDATES",
                 "message": "No valid fields provided for update",
-                "details": f"Updatable fields: {', '.join(updatable_fields)}"
+                "updatable_fields": updatable_fields
             }
         }), 400
     
     return jsonify({
-        "responseType": "success",
+        "success": True,
         "data": {
             "store": STORE_DATA,
             "updated_fields": updated_fields,
