@@ -65,13 +65,11 @@
         },
         "valid_until": {
           "type": "string",
-          "description": "Offer validity date (YYYY-MM-DD)",
-          "default": "2025-12-31"
+          "description": "Offer validity date (YYYY-MM-DD)"
         },
         "active": {
           "type": "boolean",
-          "description": "Whether offer is active",
-          "default": true
+          "description": "Whether offer is active"
         }
       },
       "required": ["platform", "title", "description", "discount_type", "discount_value", "min_order"]
@@ -102,8 +100,7 @@
         "platform": {
           "type": "string",
           "description": "Specific platform info or all platforms",
-          "enum": ["zomato", "swiggy", "all"],
-          "default": "all"
+          "enum": ["zomato", "swiggy", "all"]
         }
       }
     },
@@ -118,8 +115,7 @@
         "platform": {
           "type": "string",
           "description": "Platform to get pricing for",
-          "enum": ["zomato", "swiggy", "all"],
-          "default": "all"
+          "enum": ["zomato", "swiggy", "all"]
         },
         "category": {
           "type": "string",
@@ -127,8 +123,7 @@
         },
         "available_only": {
           "type": "boolean",
-          "description": "Show only available items",
-          "default": false
+          "description": "Show only available items"
         }
       }
     },
@@ -143,8 +138,7 @@
         "platform": {
           "type": "string",
           "description": "Platform to get offers for",
-          "enum": ["zomato", "swiggy", "all"],
-          "default": "all"
+          "enum": ["zomato", "swiggy", "all"]
         }
       }
     },
