@@ -22,7 +22,8 @@
                     }
                 },
                 "required": ["item_id", "platform", "new_price"]
-            }
+            },
+            "confirmationRequired": true
         },
         {
             "name": "createOffer",
@@ -73,7 +74,8 @@
                     }
                 },
                 "required": ["platform", "title", "description", "discount_type", "discount_value", "min_order"]
-            }
+            },
+            "confirmationRequired": true
         },
         {
             "name": "toggleItemAvailability",
@@ -87,7 +89,8 @@
                     }
                 },
                 "required": ["item_id"]
-            }
+            },
+            "confirmationRequired": true
         },
         {
             "name": "getStoreInfo",
@@ -166,7 +169,8 @@
                     }
                 },
                 "required": []
-            }
+            },
+            "confirmationRequired": true
         }
     ]
 }
