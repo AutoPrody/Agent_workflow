@@ -1,10 +1,20 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask_cors import CORS
 import json
 import os
 from datetime import datetime, timedelta
 import uuid
 
 app = Flask(__name__)
+
+# Configure CORS
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # Mock data for the restaurant
 STORE_DATA = {
